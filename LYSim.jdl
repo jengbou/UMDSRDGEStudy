@@ -1,0 +1,9 @@
+universe = vanilla
+Executable = ./LYSim.sh
+should_transfer_files = NO
+notify_user = 
+Output = PREFIX_NAME/$(cluster)_$(process).stdout
+Error  = PREFIX_NAME/$(cluster)_$(process).stderr
+Log    = PREFIX_NAME/$(cluster)_$(process).condor
+Arguments = RUN_DIR INPUT_NAME ANALYSIS_FILE_NAME
+Queue 1
