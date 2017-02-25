@@ -1298,7 +1298,11 @@ void LYSimDetectorConstruction::DefineMaterials()
 
     //EJ200
     {
-        fEJ200 = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"); // H:8.47%; C: 91.53%; density = 1.023 g/cm^3
+        //fEJ200 = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"); // H:8.5%; C: 91.5%; density = 1.032 g/cm^3
+        fEJ200 = new G4Material("EJ200", 1.023*g/cm3, 2, kStateSolid);
+        fEJ200->AddElement(C, 91.53*perCent);
+        fEJ200->AddElement(H, 8.47*perCent);
+
         const G4int nEntries = 2;
         G4double PhotonEnergy[nEntries] = {1.0*eV, 6.0*eV};
         G4double RefractiveIndex[nEntries] = {1.58, 1.58};
