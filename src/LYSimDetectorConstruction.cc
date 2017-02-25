@@ -53,7 +53,7 @@ LYSimDetectorConstruction::LYSimDetectorConstruction()
     physWorld = NULL;
 
     fVacuum = fAir = fSiO2 = fPolystyrene = fPolycarbonate = fLYSO = fGaAs = NULL;
-    fSCSN81 = fBC408 = NULL;
+    fSCSN81 = fEJ200 = NULL;
     fScintPmtGapMat = NULL;
     fFiberCore = fFiberInnerCladding = fFiberOuterCladding = NULL;
     fTyvekOpSurface = fIdealTyvekOpSurface = fUnifiedTyvekOpSurface = fUnifiedIdealTyvekOpSurface = NULL;
@@ -213,7 +213,7 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
                                );
         G4LogicalVolume* logicTile =
             new G4LogicalVolume(solidTile,
-                                fSCSN81,
+                                fEJ200,
                                 "Tile");
         G4ThreeVector TileOffset(0, 0, 0);
         //TileOffset -= tileCenter;
@@ -1295,6 +1295,29 @@ void LYSimDetectorConstruction::DefineMaterials()
         MPT->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
         fSCSN81->SetMaterialPropertiesTable(MPT);
     }
+
+    //EJ200
+    {
+        fEJ200 = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"); // H:8.47%; C: 91.53%; density = 1.023 g/cm^3
+        const G4int nEntries = 2;
+        G4double PhotonEnergy[nEntries] = {1.0*eV, 6.0*eV};
+        G4double RefractiveIndex[nEntries] = {1.58, 1.58};
+
+        G4double baseAbsLength = GetTileAbsLength();
+        G4double baseMu = 0; //FIXME 0.01 / cm; // 1 / baseAbsLength;
+        G4double inducedMu = GetInducedMuTile() / cm; 
+        G4double mu = baseMu + inducedMu;
+        G4double absLength = 1 / mu;
+
+        G4cout << "Tile abs length set to " << G4BestUnit(absLength, "Length") << G4endl;
+        G4double AbsLength[nEntries] = {absLength, absLength};
+        // Add entries into properties table
+        G4MaterialPropertiesTable* MPTEJ200 = new G4MaterialPropertiesTable();
+        MPTEJ200->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
+        MPTEJ200->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
+        fEJ200->SetMaterialPropertiesTable(MPTEJ200);
+    }
+
 }
 
 

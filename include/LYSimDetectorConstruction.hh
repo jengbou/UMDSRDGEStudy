@@ -152,7 +152,7 @@ private:
     G4Material* fPyrex;
     G4Material* fWater;
     G4Material* fSCSN81;
-    G4Material* fBC408;
+    G4Material* fEJ200;
     G4Material* fScintPmtGapMat;
 
     //Pointers to surfaces

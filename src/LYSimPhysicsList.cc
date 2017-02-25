@@ -54,6 +54,7 @@ void LYSimPhysicsList::ConstructParticle()
     ConstructLeptons();
     ConstructMesons();
     ConstructBaryons();
+    ConstructIons();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -110,6 +111,17 @@ void LYSimPhysicsList::ConstructBaryons()
 
     G4Neutron::NeutronDefinition();
     G4AntiNeutron::AntiNeutronDefinition();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void LYSimPhysicsList::ConstructIons()
+{
+    // Generic ion
+    G4GenericIon::GenericIonDefinition();
+
+    // alpha
+    G4Alpha::AlphaDefinition();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -246,11 +258,10 @@ void LYSimPhysicsList::ConstructOp()
     theScintillationProcess->SetTrackSecondariesFirst(true);
 
     // Use Birks Correction in the Scintillation process
-    //*-*
-          //G4EmSaturation* emSaturation = G4LossTableManager::Instance()->EmSaturation();
-          //theScintillationProcess->AddSaturation(emSaturation);
+    G4EmSaturation* emSaturation = G4LossTableManager::Instance()->EmSaturation();
+    theScintillationProcess->AddSaturation(emSaturation);
 
-          theWLSProcess->UseTimeProfile("delta");
+    theWLSProcess->UseTimeProfile("delta");
 
     auto theParticleIterator=GetParticleIterator();
     theParticleIterator->reset();
@@ -317,20 +328,20 @@ void LYSimPhysicsList::ConstructIdealOp()
         G4ParticleDefinition* particle = theParticleIterator->value();
         G4ProcessManager* pmanager = particle->GetProcessManager();
         G4String particleName = particle->GetParticleName();
-//         if (theCerenkovProcess->IsApplicable(*particle)) {
-//             pmanager->AddProcess(theCerenkovProcess);
-//             pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
-//         }
-//         if (theScintillationProcess->IsApplicable(*particle)) {
-//             pmanager->AddProcess(theScintillationProcess);
-//             pmanager->SetProcessOrderingToLast(theScintillationProcess, idxAtRest);
-//             pmanager->SetProcessOrderingToLast(theScintillationProcess, idxPostStep);
-//         }
+        if (theCerenkovProcess->IsApplicable(*particle)) {
+            pmanager->AddProcess(theCerenkovProcess);
+            pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+        }
+        if (theScintillationProcess->IsApplicable(*particle)) {
+            pmanager->AddProcess(theScintillationProcess);
+            pmanager->SetProcessOrderingToLast(theScintillationProcess, idxAtRest);
+            pmanager->SetProcessOrderingToLast(theScintillationProcess, idxPostStep);
+        }
         if (particleName == "opticalphoton") {
             G4cout << " AddDiscreteProcess to OpticalPhoton " << G4endl;
-//             pmanager->AddDiscreteProcess(theAbsorptionProcess);
-//             pmanager->AddDiscreteProcess(theRayleighScatteringProcess);
-//             pmanager->AddDiscreteProcess(theMieHGScatteringProcess);
+            pmanager->AddDiscreteProcess(theAbsorptionProcess);
+            pmanager->AddDiscreteProcess(theRayleighScatteringProcess);
+            pmanager->AddDiscreteProcess(theMieHGScatteringProcess);
             pmanager->AddDiscreteProcess(theBoundaryProcess);
             pmanager->AddDiscreteProcess(theWLSProcess);
         }
@@ -371,7 +382,7 @@ void LYSimPhysicsList::SetCuts()
     SetCutsWithDefault();
 
     //temp disabled cut value display
-//     if (verboseLevel>0) DumpCutValuesTable();   
+    //     if (verboseLevel>0) DumpCutValuesTable();   
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

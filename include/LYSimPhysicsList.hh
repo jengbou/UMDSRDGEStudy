@@ -33,6 +33,7 @@ class LYSimPhysicsList : public G4VUserPhysicsList
     void ConstructLeptons();
     void ConstructMesons();
     void ConstructBaryons();
+    void ConstructIons();
 
     //these methods Construct physics processes and register them
     void ConstructGeneral();
