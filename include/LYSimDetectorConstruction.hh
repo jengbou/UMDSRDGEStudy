@@ -114,7 +114,8 @@ private:
                                  G4double Dz, //length along z
                                  G4ThreeVector& centerCoord); //coordinate of center of gravity w.r.t. corner 0 at -x, -y
     G4VSolid* ConstructFiberSolid(const G4String& name, 
-                                  G4double radius,
+                                  G4double radiusI,
+                                  G4double radiusO,
                                   G4double bendRadius,
                                   G4double distance, //distance from tile edge to fiber center axis
                                   G4double angle1,
@@ -189,7 +190,9 @@ private:
     G4double ScintPMT_gap; //thickness of gap between scintillator and PMT
     G4double shielding_sizeXY;
     G4double shielding_thickness;
-    G4double fib_radius;
+    G4double fCore_radius;
+    G4double fInnerClad_radiusI,fInnerClad_radiusO;
+    G4double fOuterClad_radiusI,fOuterClad_radiusO;
     G4double fib_length;
     G4double fibXY;
     G4double fibMinZ, fibMaxZ;
