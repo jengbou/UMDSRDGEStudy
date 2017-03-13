@@ -36,6 +36,10 @@ public:
     void SetOutputFile(std::string filename) {fOutputFileName = filename;};
     //Set ROOT file name
     void SetROOTFile(std::string filename) {fROOTFileName = filename;};
+    //Get output file name
+    std::string GetOutputFileName() {return fOutputFileName;};
+    //Get ROOT file name
+    std::string GetROOTFileName() {return fROOTFileName;};
     //! Should be called at the beginning of an event
     void PrepareNewEvent(const G4Event* anEvent);
     //! Should be called at the end of an event

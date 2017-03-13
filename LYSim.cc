@@ -58,7 +58,7 @@ int main(int argc,char** argv)
     runManager->SetUserAction(new LYSimPrimaryGeneratorAction(detector));
     G4cout << "44444" << G4endl;
     // Run action
-    runManager->SetUserAction(new LYSimRunAction(detector,outFileName));
+    runManager->SetUserAction(new LYSimRunAction(detector));
     // Event action
     runManager->SetUserAction(new LYSimEventAction());
     // Tracking action

@@ -14,7 +14,7 @@ class LYSimRunAction : public G4UserRunAction
 {
   public:
 
-    LYSimRunAction(LYSimDetectorConstruction*, std::string);
+    LYSimRunAction(LYSimDetectorConstruction*);
     ~LYSimRunAction();
     std::string outFileName;
 

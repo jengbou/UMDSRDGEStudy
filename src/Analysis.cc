@@ -104,4 +104,10 @@ void Analysis::EndOfRun(const G4Run* aRun)
         G4cout << inducedMuTile << "\t" << inducedMuFiber << "\t"<< (G4double)HitCount/(G4double)PhotonCount << G4endl;
     }
     outputfile.close();
+
+    // Save histograms 
+    G4AnalysisManager* man = G4AnalysisManager::Instance();
+    man->Write();
+    man->CloseFile();
+
 }
