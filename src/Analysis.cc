@@ -5,7 +5,10 @@
 #include "G4PhysicalConstants.hh"
 #include "LYSimDetectorConstruction.hh"
 #include "G4ios.hh"
+#include "g4root.hh"
+
 using namespace std;
+using namespace CLHEP;
 
 //ROOT Stuff
 //#include "TProfile.h"
@@ -20,6 +23,9 @@ Analysis::Analysis()
     // //Delete previous contents of output file.
     // outputfile.open(fOutputFileName.c_str(), ofstream::out | ofstream::trunc);
     // outputfile.close();
+    //Instantiate the analysis manager
+    G4AnalysisManager::Instance();
+
 }
 
 Analysis::~Analysis()
@@ -34,6 +40,8 @@ void Analysis::PrepareNewEvent(const G4Event* /*anEvent*/)
 
 void Analysis::EndOfEvent(const G4Event* anEvent)
 {
+    G4AnalysisManager* man = G4AnalysisManager::Instance();
+
     G4String hitCollName = "PMTHitsCollection";
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
     static G4int hitCollID = -1;
@@ -60,14 +68,15 @@ void Analysis::EndOfEvent(const G4Event* anEvent)
     if(hits->entries()==1) //if there is an entry in hits collection
     {
         hit = (*hits)[0];
-        EventEnergy = hit->GetEnergy();
+        G4double HitEnergy = hit->GetEnergy();
+        EventEnergy += HitEnergy;
         EventPhotonCount = hit->GetPhotonCount();
         HitCount++;
+        man->FillH1(1,HitEnergy/eV);
+
     }
-//     G4cout << "Energy deposited in PMT this event is " << G4BestUnit(EventEnergy,"Energy") << G4endl
-//            << "# of photon hits in PMT this event is " << EventPhotonCount << G4endl;
-//     EnergyHist->Fill(EventEnergy/eV);
-//     PhotonHitsHist->Fill(EventPhotonCount);
+    man->FillH1(2,HitCount);
+    man->FillH1(3,EventEnergy/eV);
 }
 
 
@@ -81,12 +90,6 @@ void Analysis::PrepareNewRun(const G4Run* /*aRun*/ )
 
 void Analysis::EndOfRun(const G4Run* aRun)
 {
-    //Write to file
-//     TFile* rootfile = TFile::Open(fROOTFileName.c_str(),"recreate");
-//     EnergyHist->Write();
-//     PhotonHitsHist->Write();
-//     rootfile->Close();
-
     outputfile.open(fOutputFileName.c_str(), ofstream::out | ofstream::app);
     G4cout << "Efficiency in this run is " << (G4double)HitCount/(G4double)PhotonCount << G4endl;
     if (outputfile.is_open())

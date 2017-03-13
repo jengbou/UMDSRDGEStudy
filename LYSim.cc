@@ -42,12 +42,15 @@ int main(int argc,char** argv)
     runManager->SetUserInitialization(detector);
     G4cout << "22222" << G4endl;
     // Physics list
-    G4VUserPhysicsList* physics = new LYSimPhysicsList;
+    G4VUserPhysicsList* physics = new LYSimPhysicsList();
     runManager-> SetUserInitialization(physics);
     G4cout << "33333" << G4endl;
 
     //Construct Analysis class
     Analysis::GetInstance()->SetDetector(detector);
+    std::string outFileName= "Analysis";
+    Analysis::GetInstance()->SetOutputFile(outFileName+".txt");
+    Analysis::GetInstance()->SetROOTFile(outFileName+".root");
 
     // Set user action classes
     //    
@@ -55,7 +58,7 @@ int main(int argc,char** argv)
     runManager->SetUserAction(new LYSimPrimaryGeneratorAction(detector));
     G4cout << "44444" << G4endl;
     // Run action
-    runManager->SetUserAction(new LYSimRunAction(detector));
+    runManager->SetUserAction(new LYSimRunAction(detector,outFileName));
     // Event action
     runManager->SetUserAction(new LYSimEventAction());
     // Tracking action
@@ -78,10 +81,9 @@ int main(int argc,char** argv)
     // Get the pointer to the User Interface manager
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-    Analysis::GetInstance()->SetOutputFile("Analysis.txt");
     if (argc == 2) {
         G4cout<< "argv[1] is " << argv[1] <<G4endl;
-        if(argv[1] == "-novis") {
+        if(std::string(argv[1]) == "-novis") {
             G4UIExecutive* ui = new G4UIExecutive(argc, argv);
             ui->SessionStart();
             UImanager->ApplyCommand("/control/execute init.mac");
@@ -98,9 +100,10 @@ int main(int argc,char** argv)
         // batch mode
         G4String command = "/control/execute ";
         G4String fileName = argv[1];
-        std::string outFileName = argv[2];
-        G4cout<<"outFileName is "<< outFileName <<G4endl; 
-        Analysis::GetInstance()->SetOutputFile(outFileName);
+        outFileName = argv[2];
+        G4cout<<"outFileName tag is "<< outFileName <<G4endl;
+        Analysis::GetInstance()->SetOutputFile(outFileName+".txt");
+        Analysis::GetInstance()->SetROOTFile(outFileName+".root");
         UImanager->ApplyCommand(command+fileName);
     }
     else {

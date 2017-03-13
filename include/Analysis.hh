@@ -5,8 +5,6 @@
 #include "G4Run.hh"
 #include <iostream>
 #include <fstream>
-//ROOT
-//#include "TH1D.h"
 
 #define NUMRUNS 10
 
@@ -81,9 +79,6 @@ private:
     G4double ThicknessArray[NUMRUNS];
     //Array of (light collection) efficiency for each run
     G4double EfficiencyArray[NUMRUNS];
-    //Histograms
-    //TH1D* EnergyHist;
-    //TH1D* PhotonHitsHist;
 
     G4double tileAbsLength;
     G4double inducedMuTile;
