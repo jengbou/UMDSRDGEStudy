@@ -154,6 +154,7 @@ private:
     G4Material* fWater;
     G4Material* fSCSN81;
     G4Material* fEJ200;
+    G4Material* fEJ260;
     G4Material* fScintPmtGapMat;
 
     //Pointers to surfaces

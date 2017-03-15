@@ -53,7 +53,7 @@ LYSimDetectorConstruction::LYSimDetectorConstruction()
     physWorld = NULL;
 
     fVacuum = fAir = fSiO2 = fPolystyrene = fPolycarbonate = fLYSO = fGaAs = NULL;
-    fSCSN81 = fEJ200 = NULL;
+    fSCSN81 = fEJ200 = fEJ260 = NULL;
     fScintPmtGapMat = NULL;
     fFiberCore = fFiberInnerCladding = fFiberOuterCladding = NULL;
     fTyvekOpSurface = fIdealTyvekOpSurface = fUnifiedTyvekOpSurface = fUnifiedIdealTyvekOpSurface = NULL;
@@ -123,7 +123,7 @@ void LYSimDetectorConstruction::SetDefaults()
     layerNo = 1;
 
     tileAbsLength = 380*cm;
-    inducedMuTile = 0.091293258446391/cm;//EJ200PVT-1X2P 0.4Mrad@0.3krad/h
+    inducedMuTile = 1.e-20/cm;
     inducedMuFiber = 1./(2000.0*cm);
     readoutCorner = 1;
 
@@ -162,363 +162,363 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
     //logicWorld -> SetVisAttributes(new G4VisAttributes(white));
     logicWorld -> SetVisAttributes(G4VisAttributes::Invisible); //MakeInvisible
 
-    ///////////////////////////////////////////
-        //// Tile
-        ///////////////////////////////////////////
+    ////////////////////////////////////////////
+    //// Tile
+    ////////////////////////////////////////////
 
-        //Generic trapezoid cylinder tile solid
-        G4ThreeVector tileCenter(0, 0, 0);
-        {
-            // From CMSSW/Geometry/HcalTowerAlgo/src/HcalFlexiHardcodeGeometryLoader.cc.
+    //Generic trapezoid cylinder tile solid
+    G4ThreeVector tileCenter(0, 0, 0);
+    {
+        // From CMSSW/Geometry/HcalTowerAlgo/src/HcalFlexiHardcodeGeometryLoader.cc.
 
-            // Eta bounds for ieta 16 to 29.
-            float etaBounds[] = {0.087*15, 0.087*16, 0.087*17, 0.087*18, 0.087*19,
-                                 1.74, 1.83, 1.93, 2.043, 2.172,
-                                 2.322, 2.500, 2.650, 2.868, 3.000};
+        // Eta bounds for ieta 16 to 29.
+        float etaBounds[] = {0.087*15, 0.087*16, 0.087*17, 0.087*18, 0.087*19,
+                             1.74, 1.83, 1.93, 2.043, 2.172,
+                             2.322, 2.500, 2.650, 2.868, 3.000};
 
-            // Z-position for layers -1 to 17.
-            float layerDepths[19] = {400.458, 408.718, 416.978, 425.248, 433.508, 
-                                     441.768, 450.038, 458.298, 466.558, 474.828, 
-                                     483.088, 491.348, 499.618, 507.878, 516.138, 
-                                     524.398, 532.668, 540.928, 549.268};
+        // Z-position for layers -1 to 17.
+        float layerDepths[19] = {400.458, 408.718, 416.978, 425.248, 433.508, 
+                                 441.768, 450.038, 458.298, 466.558, 474.828, 
+                                 483.088, 491.348, 499.618, 507.878, 516.138, 
+                                 524.398, 532.668, 540.928, 549.268};
 
 
-            float etaMin = etaBounds[ieta - 16];
-            float etaMax = etaBounds[ieta - 16 + 1];
+        float etaMin = etaBounds[ieta - 16];
+        float etaMax = etaBounds[ieta - 16 + 1];
 
-            float centerZ = layerDepths[layerNo - (-1) + 1];
+        float centerZ = layerDepths[layerNo - (-1) + 1];
 
-            G4double thetaMin = 2 * atan(exp(-etaMax));
-            G4double thetaMax = 2 * atan(exp(-etaMin));
-            G4double rMin = centerZ * tan(thetaMin) * cm;
-            G4double rMax = centerZ * tan(thetaMax) * cm;
+        G4double thetaMin = 2 * atan(exp(-etaMax));
+        G4double thetaMax = 2 * atan(exp(-etaMin));
+        G4double rMin = centerZ * tan(thetaMin) * cm;
+        G4double rMax = centerZ * tan(thetaMax) * cm;
 
-            Dy = rMax - rMin;
-            Dx2 = rMin * tan(angle2) - rMin * tan(angle1);
+        Dy = rMax - rMin;
+        Dx2 = rMin * tan(angle2) - rMin * tan(angle1);
 
-            G4cout << "thetaMin set to " << thetaMin << G4endl;
-            G4cout << "thetaMax set to " << thetaMax << G4endl;
-            G4cout << "rMin set to " << G4BestUnit(rMin, "Length") << G4endl;
-            G4cout << "rMax set to " << G4BestUnit(rMax, "Length") << G4endl;
-            G4cout << "Dy set to " << G4BestUnit(Dy, "Length") << G4endl;
-            G4cout << "Dx2 set to " << G4BestUnit(Dx2, "Length") << G4endl;
-        }
+        G4cout << "thetaMin set to " << thetaMin << G4endl;
+        G4cout << "thetaMax set to " << thetaMax << G4endl;
+        G4cout << "rMin set to " << G4BestUnit(rMin, "Length") << G4endl;
+        G4cout << "rMax set to " << G4BestUnit(rMax, "Length") << G4endl;
+        G4cout << "Dy set to " << G4BestUnit(Dy, "Length") << G4endl;
+        G4cout << "Dx2 set to " << G4BestUnit(Dx2, "Length") << G4endl;
+    }
 
-        G4VSolid* solidTile = 
-            ConstructTileSolid("TileTrap", 
-                               angle1,    //angle measured ccw from y axis for the side at -x
-                               angle2,    //angle measured ccw from y axis for the side at +x
-                               Dx2,       //length along x of side at y=+Dy
-                               Dy,        //length along y
-                               Dz,        //length along z
-                               tileCenter //coordinate of corner at -x, -y, -z with respect to origin
-                               );
-        G4LogicalVolume* logicTile =
-            new G4LogicalVolume(solidTile,
-                                fEJ200,
-                                "Tile");
-        G4ThreeVector TileOffset(0, 0, 0);
-        //TileOffset -= tileCenter;
-        G4VPhysicalVolume* physTile = 
-            new G4PVPlacement(0,
-                              TileOffset,
-                              logicTile,
-                              "Tile",
-                              logicWorld,
-                              false,
-                              0,
-                              checkOverlaps); 
+    G4VSolid* solidTile = 
+        ConstructTileSolid("TileTrap", 
+                           angle1,    //angle measured ccw from y axis for the side at -x
+                           angle2,    //angle measured ccw from y axis for the side at +x
+                           Dx2,       //length along x of side at y=+Dy
+                           Dy,        //length along y
+                           Dz,        //length along z
+                           tileCenter //coordinate of corner at -x, -y, -z with respect to origin
+                           );
+    G4LogicalVolume* logicTile =
+        new G4LogicalVolume(solidTile,
+                            fEJ200,
+                            "Tile");
+    G4ThreeVector TileOffset(0, 0, 0);
+    //TileOffset -= tileCenter;
+    G4VPhysicalVolume* physTile = 
+        new G4PVPlacement(0,
+                          TileOffset,
+                          logicTile,
+                          "Tile",
+                          logicWorld,
+                          false,
+                          0,
+                          checkOverlaps); 
 
-        minZposition = -0.5*scint_thickness;
-        maxZposition = 0.5*scint_thickness;
+    minZposition = -0.5*scint_thickness;
+    maxZposition = 0.5*scint_thickness;
 
-        if(wrapping_toggle)
-        {
-            G4LogicalBorderSurface* TileTyvekSurface = 
-                new G4LogicalBorderSurface("TileTyvekSurface",
-                                           physTile,
-                                           physWorld,
-                                           fUnifiedIdealTyvekOpSurface);
-        }
-        else
-        {
-            G4LogicalBorderSurface* TileAirSurface = 
-                new G4LogicalBorderSurface("TileAirSurface",
-                                           physTile,
-                                           physWorld,
-                                           fPolishedOpSurface);
-        }
+    if(wrapping_toggle)
+    {
+        G4LogicalBorderSurface* TileTyvekSurface = 
+            new G4LogicalBorderSurface("TileTyvekSurface",
+                                       physTile,
+                                       physWorld,
+                                       fUnifiedIdealTyvekOpSurface);
+    }
+    else
+    {
+        G4LogicalBorderSurface* TileAirSurface = 
+            new G4LogicalBorderSurface("TileAirSurface",
+                                       physTile,
+                                       physWorld,
+                                       fPolishedOpSurface);
+    }
 
-        //Tile visualization attributes
-        G4VisAttributes * TileVisAtt = new G4VisAttributes(G4Colour(1.,1.,0.));
-        TileVisAtt->SetForceWireframe(true);
-        TileVisAtt->SetVisibility(true);
-        logicTile->SetVisAttributes(TileVisAtt);
+    //Tile visualization attributes
+    G4VisAttributes * TileVisAtt = new G4VisAttributes(G4Colour(1.,1.,0.));
+    TileVisAtt->SetForceWireframe(true);
+    TileVisAtt->SetVisibility(true);
+    logicTile->SetVisAttributes(TileVisAtt);
         
 
-        ////////////////////////////////////////////
-        // Fiber groove and fiber
-        ////////////////////////////////////////////
-        G4VSolid* solidFiberGroove = 
-            ConstructFiberSolid("FiberGroove",
-                                0.,
-                                fCore_radius + air_gap,
-                                bendRadius,        //G4double bendRadius,
-                                distance,        //G4double distance,
-                                angle1,
-                                angle2,
-                                readoutCorner);        //readoutCorner
+    ////////////////////////////////////////////
+    // Fiber groove and fiber
+    ////////////////////////////////////////////
+    G4VSolid* solidFiberGroove = 
+        ConstructFiberSolid("FiberGroove",
+                            0.,
+                            fCore_radius + air_gap,
+                            bendRadius,        //G4double bendRadius,
+                            distance,        //G4double distance,
+                            angle1,
+                            angle2,
+                            readoutCorner);        //readoutCorner
         
-        G4LogicalVolume* logicFiberGroove =
-            new G4LogicalVolume(solidFiberGroove,
-                                fAir, 
-                                "FiberGroove");        
+    G4LogicalVolume* logicFiberGroove =
+        new G4LogicalVolume(solidFiberGroove,
+                            fAir, 
+                            "FiberGroove");        
 
-        G4VPhysicalVolume* physFiberGroove = 
-            new G4PVPlacement(0,
-                              G4ThreeVector(),
-                              logicFiberGroove,
-                              "FiberGroove",
-                              logicTile,
-                              false,
-                              0,
-                              checkOverlaps);
+    G4VPhysicalVolume* physFiberGroove = 
+        new G4PVPlacement(0,
+                          G4ThreeVector(),
+                          logicFiberGroove,
+                          "FiberGroove",
+                          logicTile,
+                          false,
+                          0,
+                          checkOverlaps);
         
-        G4VSolid* solidFiberCore = 
-            ConstructFiberSolid("FiberCore",
-                                0.,
-                                fCore_radius, //*-*
-                                bendRadius,        //G4double bendRadius,
-                                distance,        //G4double distance,
-                                angle1,
-                                angle2,
-                                readoutCorner);        //readoutCorner
+    G4VSolid* solidFiberCore = 
+        ConstructFiberSolid("FiberCore",
+                            0.,
+                            fCore_radius, //*-*
+                            bendRadius,        //G4double bendRadius,
+                            distance,        //G4double distance,
+                            angle1,
+                            angle2,
+                            readoutCorner);        //readoutCorner
         
-        G4LogicalVolume* logicFiberCore =
-            new G4LogicalVolume(solidFiberCore,
-                                fFiberCore, 
-                                "FiberCore");        
+    G4LogicalVolume* logicFiberCore =
+        new G4LogicalVolume(solidFiberCore,
+                            fFiberCore, 
+                            "FiberCore");        
 
-        G4VPhysicalVolume* physFiberCore = 
-            new G4PVPlacement(0,
-                              G4ThreeVector(),
-                              logicFiberCore,
-                              "FiberCore",
-                              logicFiberGroove,
-                              false,
-                              0,
-                              checkOverlaps); 
+    G4VPhysicalVolume* physFiberCore = 
+        new G4PVPlacement(0,
+                          G4ThreeVector(),
+                          logicFiberCore,
+                          "FiberCore",
+                          logicFiberGroove,
+                          false,
+                          0,
+                          checkOverlaps); 
 
-        G4VSolid* solidFiberInnerCladding = 
-            ConstructFiberSolid("FiberInnerCladding",
-                                fInnerClad_radiusI,
-                                fInnerClad_radiusO,
-                                bendRadius,
-                                distance,
-                                angle1,
-                                angle2,
-                                readoutCorner);
+    G4VSolid* solidFiberInnerCladding = 
+        ConstructFiberSolid("FiberInnerCladding",
+                            fInnerClad_radiusI,
+                            fInnerClad_radiusO,
+                            bendRadius,
+                            distance,
+                            angle1,
+                            angle2,
+                            readoutCorner);
 
-        G4LogicalVolume* logicFiberInnerCladding =
-            new G4LogicalVolume(solidFiberInnerCladding,
-                                fFiberInnerCladding, 
-                                "FiberInnerCladding");        
+    G4LogicalVolume* logicFiberInnerCladding =
+        new G4LogicalVolume(solidFiberInnerCladding,
+                            fFiberInnerCladding, 
+                            "FiberInnerCladding");        
 
-        G4VPhysicalVolume* physFiberInnerCladding = 
-            new G4PVPlacement(0,
-                              G4ThreeVector(),
-                              logicFiberInnerCladding,
-                              "FiberInnerCladding",
-                              logicFiberGroove,
-                              false,
-                              0,
-                              checkOverlaps); 
+    G4VPhysicalVolume* physFiberInnerCladding = 
+        new G4PVPlacement(0,
+                          G4ThreeVector(),
+                          logicFiberInnerCladding,
+                          "FiberInnerCladding",
+                          logicFiberGroove,
+                          false,
+                          0,
+                          checkOverlaps); 
 
-        G4VSolid* solidFiberOuterCladding = 
-            ConstructFiberSolid("FiberOuterCladding",
-                                fOuterClad_radiusI,
-                                fOuterClad_radiusO,
-                                bendRadius,
-                                distance,
-                                angle1,
-                                angle2,
-                                readoutCorner);
+    G4VSolid* solidFiberOuterCladding = 
+        ConstructFiberSolid("FiberOuterCladding",
+                            fOuterClad_radiusI,
+                            fOuterClad_radiusO,
+                            bendRadius,
+                            distance,
+                            angle1,
+                            angle2,
+                            readoutCorner);
 
-        G4LogicalVolume* logicFiberOuterCladding =
-            new G4LogicalVolume(solidFiberOuterCladding,
-                                fFiberOuterCladding, 
-                                "FiberOuterCladding");        
+    G4LogicalVolume* logicFiberOuterCladding =
+        new G4LogicalVolume(solidFiberOuterCladding,
+                            fFiberOuterCladding, 
+                            "FiberOuterCladding");        
 
-        G4VPhysicalVolume* physFiberOuterCladding = 
-            new G4PVPlacement(0,
-                              G4ThreeVector(),
-                              logicFiberOuterCladding,
-                              "FiberOuterCladding",
-                              logicFiberGroove,
-                              false,
-                              0,
-                              checkOverlaps); 
+    G4VPhysicalVolume* physFiberOuterCladding = 
+        new G4PVPlacement(0,
+                          G4ThreeVector(),
+                          logicFiberOuterCladding,
+                          "FiberOuterCladding",
+                          logicFiberGroove,
+                          false,
+                          0,
+                          checkOverlaps); 
 
          
-        //Fiber groove visualization attributes
-        G4VisAttributes * FibGrooveVisAtt = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
-        FibGrooveVisAtt->SetForceWireframe(true);
-        FibGrooveVisAtt->SetVisibility(false);
-        logicFiberGroove->SetVisAttributes(FibGrooveVisAtt);
+    //Fiber groove visualization attributes
+    G4VisAttributes * FibGrooveVisAtt = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
+    FibGrooveVisAtt->SetForceWireframe(true);
+    FibGrooveVisAtt->SetVisibility(false);
+    logicFiberGroove->SetVisAttributes(FibGrooveVisAtt);
                 
-        //Fiber visualization attributes
-        G4VisAttributes * FibVisAtt = new G4VisAttributes(G4Colour(0.,1.,1.));
-        FibVisAtt->SetForceWireframe(true);
-        FibVisAtt->SetVisibility(false);
-        logicFiberOuterCladding->SetVisAttributes(FibVisAtt);
-        logicFiberInnerCladding->SetVisAttributes(FibVisAtt);
-        logicFiberCore->SetVisAttributes(FibVisAtt);
-        //logicFiber->SetVisAttributes(FibVisAtt);
+    //Fiber visualization attributes
+    G4VisAttributes * FibVisAtt = new G4VisAttributes(G4Colour(0.,1.,1.));
+    FibVisAtt->SetForceWireframe(true);
+    FibVisAtt->SetVisibility(false);
+    logicFiberOuterCladding->SetVisAttributes(FibVisAtt);
+    logicFiberInnerCladding->SetVisAttributes(FibVisAtt);
+    logicFiberCore->SetVisAttributes(FibVisAtt);
+    //logicFiber->SetVisAttributes(FibVisAtt);
                 
-        ////////////////////////////////////////////
-        // Mirror
-        ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // Mirror
+    ////////////////////////////////////////////
         
-        G4Tubs* solidMirror = 
-            new G4Tubs("Mirror",
-                       0.,
-                       fCore_radius,
-                       0.5*Photocat_thickness,
-                       0., 
-                       2.*pi);
+    G4Tubs* solidMirror = 
+        new G4Tubs("Mirror",
+                   0.,
+                   fCore_radius,
+                   0.5*Photocat_thickness,
+                   0., 
+                   2.*pi);
 
-        G4LogicalVolume* logicMirror = 
-            new G4LogicalVolume(solidMirror,
-                                fGaAs,
-                                "Mirror");
+    G4LogicalVolume* logicMirror = 
+        new G4LogicalVolume(solidMirror,
+                            fGaAs,
+                            "Mirror");
         
-        G4RotationMatrix* rotMirror = new G4RotationMatrix;
-        rotMirror->rotateY(pi/2*rad);
+    G4RotationMatrix* rotMirror = new G4RotationMatrix;
+    rotMirror->rotateY(pi/2*rad);
         
-        G4ThreeVector transMirror;
-        if(readoutCorner == 0)
-        {
-            transMirror = mirror0 + G4ThreeVector(-0.5*Photocat_thickness, 0, 0);
-        }
-        else if (readoutCorner == 1)
-        {
-            transMirror = mirror1 + G4ThreeVector(+0.5*Photocat_thickness, 0, 0);
-        }
+    G4ThreeVector transMirror;
+    if(readoutCorner == 0)
+    {
+        transMirror = mirror0 + G4ThreeVector(-0.5*Photocat_thickness, 0, 0);
+    }
+    else if (readoutCorner == 1)
+    {
+        transMirror = mirror1 + G4ThreeVector(+0.5*Photocat_thickness, 0, 0);
+    }
         
-        G4VPhysicalVolume* physMirror = 
-            new G4PVPlacement(rotMirror,
-                              transMirror,
-                              logicMirror,
-                              "Mirror",
-                              logicTile,
-                              false,
-                              0,
-                              checkOverlaps);
+    G4VPhysicalVolume* physMirror = 
+        new G4PVPlacement(rotMirror,
+                          transMirror,
+                          logicMirror,
+                          "Mirror",
+                          logicTile,
+                          false,
+                          0,
+                          checkOverlaps);
         
-        G4LogicalBorderSurface* MirrorSurface = 
-            new G4LogicalBorderSurface("MirrorSurface",
-                                       physMirror,
-                                       physWorld,
-                                       fIdealMirrorOpSurface);        
+    G4LogicalBorderSurface* MirrorSurface = 
+        new G4LogicalBorderSurface("MirrorSurface",
+                                   physMirror,
+                                   physWorld,
+                                   fIdealMirrorOpSurface);        
 
-        // Instantiation of a set of visualization attributes with grey colour
-        G4VisAttributes * MirrorVisAtt = new G4VisAttributes(G4Colour(0.8,0.8,0.8));
-        // Set the forced wireframe style
-        MirrorVisAtt->SetForceWireframe(true);
-        MirrorVisAtt->SetVisibility(true);
-        //         logicMirror->SetVisAttributes(MirrorVisAtt);
+    // Instantiation of a set of visualization attributes with grey colour
+    G4VisAttributes * MirrorVisAtt = new G4VisAttributes(G4Colour(0.8,0.8,0.8));
+    // Set the forced wireframe style
+    MirrorVisAtt->SetForceWireframe(true);
+    MirrorVisAtt->SetVisibility(true);
+    //         logicMirror->SetVisAttributes(MirrorVisAtt);
         
-        ////////////////////////////////////////////
-        // PMT
-        ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // PMT
+    ////////////////////////////////////////////
         
-        G4Tubs* solidPhotocat =
-            new G4Tubs("Photocathode",
-                       0.,
-                       0.5*Photocat_sizeXY,
-                       0.5*Photocat_thickness,
-                       0., 
-                       2.*pi);
+    G4Tubs* solidPhotocat =
+        new G4Tubs("Photocathode",
+                   0.,
+                   0.5*Photocat_sizeXY,
+                   0.5*Photocat_thickness,
+                   0., 
+                   2.*pi);
         
-        G4LogicalVolume* logicPhotocat =
-            new G4LogicalVolume(solidPhotocat,
-                                fGaAs, //*-*
-                                "Photocathode");
+    G4LogicalVolume* logicPhotocat =
+        new G4LogicalVolume(solidPhotocat,
+                            fGaAs, //*-*
+                            "Photocathode");
         
-        G4RotationMatrix* rotPhotocat = new G4RotationMatrix;
-        if(readoutCorner == 0)
-        {
-            rotPhotocat->rotateX(pi/2*rad);
-            rotPhotocat->rotateZ(angle1);
-            rotPhotocat->invert();
-        }
-        else if (readoutCorner == 1)
-        {
-            rotPhotocat->rotateX(pi/2*rad);
-            rotPhotocat->rotateZ(angle2);
-            rotPhotocat->invert();
-        }
-        //rotPhotocat->rotateX(pi/2*rad);
+    G4RotationMatrix* rotPhotocat = new G4RotationMatrix;
+    if(readoutCorner == 0)
+    {
+        rotPhotocat->rotateX(pi/2*rad);
+        rotPhotocat->rotateZ(angle1);
+        rotPhotocat->invert();
+    }
+    else if (readoutCorner == 1)
+    {
+        rotPhotocat->rotateX(pi/2*rad);
+        rotPhotocat->rotateZ(angle2);
+        rotPhotocat->invert();
+    }
+    //rotPhotocat->rotateX(pi/2*rad);
         
-        //G4ThreeVector transPhotocat(80*mm, 100*mm+0.5*Photocat_thickness, 0);
-        G4ThreeVector transPhotocat;
-        if(readoutCorner == 0)
-        {
-            transPhotocat = readout0;
-        }
-        else if (readoutCorner == 1)
-        {
-            transPhotocat = readout1;
-        }
+    //G4ThreeVector transPhotocat(80*mm, 100*mm+0.5*Photocat_thickness, 0);
+    G4ThreeVector transPhotocat;
+    if(readoutCorner == 0)
+    {
+        transPhotocat = readout0;
+    }
+    else if (readoutCorner == 1)
+    {
+        transPhotocat = readout1;
+    }
         
-        G4VPhysicalVolume* physPhotocat = 
-            new G4PVPlacement(rotPhotocat,
-                              transPhotocat,
-                              logicPhotocat,
-                              "Photocathode",
-                              logicWorld,
-                              false,
-                              0,
-                              checkOverlaps);
+    G4VPhysicalVolume* physPhotocat = 
+        new G4PVPlacement(rotPhotocat,
+                          transPhotocat,
+                          logicPhotocat,
+                          "Photocathode",
+                          logicWorld,
+                          false,
+                          0,
+                          checkOverlaps);
         
-        G4OpticalSurface* PMTOpSurface = new G4OpticalSurface("PMT_Surface");
-        G4LogicalSkinSurface* PMTSurface = new G4LogicalSkinSurface("name",logicPhotocat,PMTOpSurface);
+    G4OpticalSurface* PMTOpSurface = new G4OpticalSurface("PMT_Surface");
+    G4LogicalSkinSurface* PMTSurface = new G4LogicalSkinSurface("name",logicPhotocat,PMTOpSurface);
         
-        PMTOpSurface -> SetType(dielectric_metal);
-        PMTOpSurface -> SetModel(unified);
+    PMTOpSurface -> SetType(dielectric_metal);
+    PMTOpSurface -> SetModel(unified);
 
-        G4MaterialPropertiesTable *OpSurfaceProperty = new G4MaterialPropertiesTable();
+    G4MaterialPropertiesTable *OpSurfaceProperty = new G4MaterialPropertiesTable();
         
-        //Renyuan's measured Q.E. for Hamamatsu R2059
-        const G4int numentries = 2;
-        G4double energies[numentries] = 
-            {1.0*eV, 6.0*eV};
-        G4double reflectivity[numentries] = 
-            {0.0, 0.0};
-        G4double perfectefficiency[numentries] =
-            {1.0, 1.0};
+    //Renyuan's measured Q.E. for Hamamatsu R2059
+    const G4int numentries = 2;
+    G4double energies[numentries] = 
+        {1.0*eV, 6.0*eV};
+    G4double reflectivity[numentries] = 
+        {0.0, 0.0};
+    G4double perfectefficiency[numentries] =
+        {1.0, 1.0};
         
-        OpSurfaceProperty -> AddProperty("REFLECTIVITY",energies,reflectivity,numentries);
-        OpSurfaceProperty -> AddProperty("EFFICIENCY",energies,perfectefficiency,numentries);
+    OpSurfaceProperty -> AddProperty("REFLECTIVITY",energies,reflectivity,numentries);
+    OpSurfaceProperty -> AddProperty("EFFICIENCY",energies,perfectefficiency,numentries);
 
-        PMTOpSurface -> SetMaterialPropertiesTable(OpSurfaceProperty);
-        if(!fPMTSD)
-        {
-            fPMTSD = new LYSimPMTSD("/LYSimPMT");
-            G4SDManager* sdman = G4SDManager::GetSDMpointer();
-            sdman->AddNewDetector(fPMTSD);
-        }
+    PMTOpSurface -> SetMaterialPropertiesTable(OpSurfaceProperty);
+    if(!fPMTSD)
+    {
+        fPMTSD = new LYSimPMTSD("/LYSimPMT");
+        G4SDManager* sdman = G4SDManager::GetSDMpointer();
+        sdman->AddNewDetector(fPMTSD);
+    }
         
-        //Photocathode visualization attributes
-        G4VisAttributes * PhotocatVisAtt = new G4VisAttributes(G4Colour(0.7,0.7,0.7));
-        PhotocatVisAtt->SetForceWireframe(false);
-        PhotocatVisAtt->SetVisibility(true);
-        logicPhotocat->SetVisAttributes(PhotocatVisAtt);
+    //Photocathode visualization attributes
+    G4VisAttributes * PhotocatVisAtt = new G4VisAttributes(G4Colour(0.7,0.7,0.7));
+    PhotocatVisAtt->SetForceWireframe(false);
+    PhotocatVisAtt->SetVisibility(true);
+    logicPhotocat->SetVisAttributes(PhotocatVisAtt);
 
-        //
-        //always return the physical World
-        //
-        return physWorld;
+    //
+    //always return the physical World
+    //
+    return physWorld;
 }
 
 G4VSolid* LYSimDetectorConstruction::ConstructTileSolid (const G4String& name, 
@@ -1375,7 +1375,7 @@ void LYSimDetectorConstruction::DefineMaterials()
         G4double RefractiveIndex[nEntries] = {1.58, 1.58};
 
         G4double baseAbsLength = GetTileAbsLength();
-        G4double baseMu = 0.0026; // 1/380cm; // 1 / baseAbsLength;
+        G4double baseMu = 1 / baseAbsLength;
         G4double inducedMu = GetInducedMuTile(); 
         G4double mu = baseMu + inducedMu;
         G4double absLength = 1 / mu;
@@ -1392,6 +1392,37 @@ void LYSimDetectorConstruction::DefineMaterials()
         MPTEJ200->AddConstProperty("SLOWTIMECONSTANT",2.1*ns);
         MPTEJ200->AddConstProperty("YIELDRATIO",1.0);
         fEJ200->SetMaterialPropertiesTable(MPTEJ200);
+    }
+
+    //EJ260
+    {
+        //fEJ260 = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"); // H:8.5%; C: 91.5%; density = 1.032 g/cm^3
+        fEJ260 = new G4Material("EJ260", 1.023*g/cm3, 2, kStateSolid);
+        fEJ260->AddElement(C, 91.49*perCent);
+        fEJ260->AddElement(H, 8.51*perCent);
+
+        const G4int nEntries = 2;
+        G4double PhotonEnergy[nEntries] = {1.0*eV, 6.0*eV};
+        G4double RefractiveIndex[nEntries] = {1.58, 1.58};
+
+        G4double baseAbsLength = GetTileAbsLength();
+        G4double baseMu = 1 / baseAbsLength;
+        G4double inducedMu = GetInducedMuTile(); 
+        G4double mu = baseMu + inducedMu;
+        G4double absLength = 1 / mu;
+
+        G4cout << "[EJ260] Tile abs length set to " << G4BestUnit(absLength, "Length") << G4endl;
+        G4double AbsLength[nEntries] = {absLength, absLength};
+        // Add entries into properties table
+        G4MaterialPropertiesTable* MPTEJ260 = new G4MaterialPropertiesTable();
+        MPTEJ260->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
+        MPTEJ260->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
+        MPTEJ260->AddConstProperty("SCINTILLATIONYIELD",9.2/keV); // ELJEN
+        MPTEJ260->AddConstProperty("RESOLUTIONSCALE",1.0);
+        MPTEJ260->AddConstProperty("FASTTIMECONSTANT",1.3*ns); // ELJEN
+        MPTEJ260->AddConstProperty("SLOWTIMECONSTANT",9.2*ns);
+        MPTEJ260->AddConstProperty("YIELDRATIO",1.0);
+        fEJ260->SetMaterialPropertiesTable(MPTEJ260);
     }
 
 }
