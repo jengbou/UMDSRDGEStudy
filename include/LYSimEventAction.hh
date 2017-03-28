@@ -1,8 +1,5 @@
-// LYSimEventAction.hh
-
-
-#ifndef LYSimEVENTACTION_HH_
-#define LYSimEVENTACTION_HH_
+#ifndef LYSimEVENTACTION_HH
+#define LYSimEVENTACTION_HH
 
 
 #include "G4UserEventAction.hh"
@@ -13,15 +10,15 @@ class G4Event;
 class LYSimEventAction : public G4UserEventAction
 {
 public:
-	//! Default constructor
-	LYSimEventAction();
-	//! Default destructor
-	virtual ~LYSimEventAction() {};
-	//! Beginning of event
-	void BeginOfEventAction(const G4Event* anEvent);
-	//! Digitize hits and store information
-	void EndOfEventAction(const G4Event* anEvent);
+    //! Default constructor
+    LYSimEventAction();
+    //! Default destructor
+    virtual ~LYSimEventAction() {};
+    //! Beginning of event
+    void BeginOfEventAction(const G4Event* anEvent);
+    //! Digitize hits and store information
+    void EndOfEventAction(const G4Event* anEvent);
 private:
 };
 
-#endif /* TEST4EVENTACTION_HH_ */
+#endif /* TEST4EVENTACTION_HH */

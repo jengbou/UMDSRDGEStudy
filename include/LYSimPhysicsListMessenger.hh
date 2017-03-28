@@ -23,42 +23,48 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file /LYSim/src/LYSimPMTHit.cc
-/// \brief Implementation of the LYSimPMTHit class
+// Hystory:
+// 18 Jan 2011 Alf adapted by TestEm18
 //
-//
-//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include "LYSimPMTHit.hh"
+#ifndef LYSimPhysicsListMessenger_h
+#define LYSimPhysicsListMessenger_h
 
-G4Allocator<LYSimPMTHit> LYSimPMTHitAllocator;
+#include "G4UImessenger.hh"
+#include "globals.hh"
 
-LYSimPMTHit::LYSimPMTHit()
+class LYSimPhysicsList;
+class G4UIdirectory;
+class G4UIcmdWithAString;
+class G4UIcmdWithABool;
+class G4UIcmdWithADoubleAndUnit;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+class LYSimPhysicsListMessenger: public G4UImessenger
 {
-    fEnergy = 0.;
-    fPhotonCount = 0;
-}
+public:
 
-LYSimPMTHit::~LYSimPMTHit() { }
+    LYSimPhysicsListMessenger(LYSimPhysicsList* );
+    virtual ~LYSimPhysicsListMessenger();
 
-LYSimPMTHit::LYSimPMTHit(const LYSimPMTHit &right)
-    : G4VHit()
-{
-    *this = right;
-}
+    void SetNewValue(G4UIcommand*, G4String);
 
-const LYSimPMTHit& LYSimPMTHit::operator=(const LYSimPMTHit &right)
-{
-    fEnergy	= right.fEnergy;
-    fPhotonCount = right.fPhotonCount;
-    return *this;
-}
+private:
+  
+    LYSimPhysicsList*          pPhysicsList;
 
-G4int LYSimPMTHit::operator==(const LYSimPMTHit& right) const
-{
-    return fEnergy == right.fEnergy && fPhotonCount == right.fPhotonCount;
-}
+    G4UIdirectory*             physDir;
+    G4UIcmdWithAString*        pListCmd;
+    G4UIcmdWithADoubleAndUnit* gammaCutCmd;
+    G4UIcmdWithADoubleAndUnit* electCutCmd;
+    G4UIcmdWithADoubleAndUnit* protoCutCmd;
+    G4UIcmdWithADoubleAndUnit* allCutCmd;
+};
 
-void LYSimPMTHit::Draw(){ }
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void LYSimPMTHit::Print(){ }
+#endif
+

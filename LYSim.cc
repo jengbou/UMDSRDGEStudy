@@ -34,17 +34,17 @@ int main(int argc,char** argv)
     //
     G4RunManager * runManager = new G4RunManager;
 
-    G4cout << "11111" << G4endl;
+    G4cout << "[LYSim] 11111" << G4endl;
     // Set mandatory initialization classes
     //
     // Detector construction
     LYSimDetectorConstruction* detector= new LYSimDetectorConstruction();
+    detector->SetDetectorType(1);
     runManager->SetUserInitialization(detector);
-    G4cout << "22222" << G4endl;
+    G4cout << "[LYSim] 22222" << G4endl;
     // Physics list
-    G4VUserPhysicsList* physics = new LYSimPhysicsList();
-    runManager-> SetUserInitialization(physics);
-    G4cout << "33333" << G4endl;
+    runManager-> SetUserInitialization(new LYSimPhysicsList());
+    G4cout << "[LYSim] 33333" << G4endl;
 
     //Construct Analysis class
     Analysis::GetInstance()->SetDetector(detector);
@@ -56,7 +56,7 @@ int main(int argc,char** argv)
     //    
     // Primary generator action
     runManager->SetUserAction(new LYSimPrimaryGeneratorAction(detector));
-    G4cout << "44444" << G4endl;
+    G4cout << "[LYSim] 44444" << G4endl;
     // Run action
     runManager->SetUserAction(new LYSimRunAction(detector));
     // Event action
@@ -69,12 +69,12 @@ int main(int argc,char** argv)
     // Initialize G4 kernel
     //
     runManager->Initialize();
-    G4cout << "55555" << G4endl;
+    G4cout << "[LYSim] 55555" << G4endl;
     //#ifdef G4VIS_USE
     // Initialize visualization
-    G4VisManager* visManager = new G4VisExecutive("Quiet");
+    //G4VisManager* visManager = new G4VisExecutive();
     // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-    // G4VisManager* visManager = new G4VisExecutive("Quiet");
+    G4VisManager* visManager = new G4VisExecutive("Quiet");
     visManager->Initialize();
     //#endif
 
@@ -82,7 +82,7 @@ int main(int argc,char** argv)
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
     if (argc == 2) {
-        G4cout<< "argv[1] is " << argv[1] <<G4endl;
+        G4cout << "[LYSim] argv[1] is " << argv[1] <<G4endl;
         if(std::string(argv[1]) == "-novis") {
             G4UIExecutive* ui = new G4UIExecutive(argc, argv);
             ui->SessionStart();
@@ -90,6 +90,7 @@ int main(int argc,char** argv)
             delete ui;
         }
         else {
+            G4cout << "[LYSim] run in batch mode" <<G4endl;
             // batch mode
             G4String command = "/control/execute ";
             G4String fileName = argv[1];
@@ -101,7 +102,7 @@ int main(int argc,char** argv)
         G4String command = "/control/execute ";
         G4String fileName = argv[1];
         outFileName = argv[2];
-        G4cout<<"outFileName tag is "<< outFileName <<G4endl;
+        G4cout << "[LYSim] outFileName tag is " << outFileName <<G4endl;
         Analysis::GetInstance()->SetOutputFile(outFileName+".txt");
         Analysis::GetInstance()->SetROOTFile(outFileName+".root");
         UImanager->ApplyCommand(command+fileName);
@@ -113,7 +114,7 @@ int main(int argc,char** argv)
         //#ifdef G4VIS_USE
         UImanager->ApplyCommand("/control/execute init_vis.mac"); 
         //#else
-        //    UImanager->ApplyCommand("/control/execute init.mac"); 
+        //UImanager->ApplyCommand("/control/execute init.mac"); 
         //#endif
         ui->SessionStart();
         delete ui;

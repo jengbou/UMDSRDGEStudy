@@ -98,7 +98,9 @@ public:
     G4double GetMaxZ() {return maxZposition;}
 
     //Tile type 1, 2, 3 based on phi segmentation
-    void  SetTileType(G4int);
+    void SetTileType(G4int);
+    //Detector type type 0(Tile), 1 (Rod)
+    void SetDetectorType(G4int);
 
 private:
     //Subfunctions for cleaner code
@@ -214,6 +216,9 @@ private:
     G4double fibRadius;
     G4int ieta;
     G4int layerNo;
+
+    //
+    G4int detType;
 
     G4ThreeVector corners[8];           //stores the corner coordinates of the tile
     G4ThreeVector readout0, readout1;   //location of readout at corner 0/1

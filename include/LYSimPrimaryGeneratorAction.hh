@@ -1,6 +1,6 @@
 
 #ifndef LYSimPrimaryGeneratorAction_h
-#define LYSimPrimaryGeneratorAction_h 1
+#define LYSimPrimaryGeneratorAction_h
 
 #include "LYSimDetectorConstruction.hh"
 

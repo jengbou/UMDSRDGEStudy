@@ -1,5 +1,5 @@
 #ifndef LYSimScintillation_h
-#define LYSimScintillation_h 1
+#define LYSimScintillation_h
 
 #include <G4Scintillation.hh>
 

@@ -35,7 +35,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 #ifndef LYSimPMTHit_h
-#define LYSimPMTHit_h 1
+#define LYSimPMTHit_h
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"

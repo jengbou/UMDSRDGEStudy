@@ -1,5 +1,5 @@
 #ifndef LYSimRunAction_h
-#define LYSimRunAction_h 1
+#define LYSimRunAction_h
 
 #include "globals.hh"
 
