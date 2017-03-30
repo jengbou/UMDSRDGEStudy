@@ -158,6 +158,7 @@ private:
     G4Material* fEJ200;
     G4Material* fEJ260;
     G4Material* fScintPmtGapMat;
+    G4Material* fBialkali;
 
     //Pointers to surfaces
     G4OpticalSurface* fTyvekOpSurface;

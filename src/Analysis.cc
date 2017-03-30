@@ -61,19 +61,36 @@ void Analysis::EndOfEvent(const G4Event* anEvent)
         G4cerr << "hitsCollection not found" << G4endl;
         return;
     }
-    LYSimPMTHit* hit = NULL;
+
     G4double EventEnergy = 0;
     G4int EventPhotonCount = 0;
-    PhotonCount++;
-    if(hits->entries()==1) //if there is an entry in hits collection
+
+    G4double nHits = hits->entries();
+    G4double firstHitTime = 0;
+    for (G4int i=0; i<nHits; i++)
     {
-        hit = (*hits)[0];
-        G4double HitEnergy = hit->GetEnergy();
+        G4double HitEnergy = (*hits)[i]->GetEnergy();
+        G4double HitTime = (*hits)[i]->GetTime();
+        if (i==0) firstHitTime = HitTime;
+
+        if (HitTime - firstHitTime > 200.0)
+            G4cout << "[LYSim] Late signal: delta Time [ns] = " << HitTime - firstHitTime << G4endl;
+
         EventEnergy += HitEnergy;
-        EventPhotonCount = hit->GetPhotonCount();
+        EventPhotonCount = (*hits)[i]->GetPhotonCount();
+        PhotonCount += EventPhotonCount;
         HitCount++;
         man->FillH1(1,HitEnergy/eV);
 
+        if (anEvent->GetEventID()%100 == 0 && nHits > 0) {
+            if (i==0) G4cout << "[LYSim] Number of hits in PMT: " << nHits << G4endl;
+            G4cout << "[LYSim] hit[" << i << "] in PMT energy = "
+                   << std::setprecision(4)
+                   << std::fixed
+                   << std::setw(6) << HitEnergy/eV << " [eV]; time = "
+                   << std::setw(6) << HitTime/ns << " [ns]"
+                   << G4endl << std::resetiosflags(std::ios::fixed);;
+        }
     }
     man->FillH1(2,HitCount);
     man->FillH1(3,EventEnergy/eV);
@@ -84,24 +101,25 @@ void Analysis::PrepareNewRun(const G4Run* /*aRun*/ )
 {
     //Reset variables relative to the run
     PhotonCount = 0;
-    HitCount = 0; //
+    HitCount = 0;
 }
 
 
 void Analysis::EndOfRun(const G4Run* aRun)
 {
     outputfile.open(fOutputFileName.c_str(), ofstream::out | ofstream::app);
-    G4cout << "Efficiency in this run is " << (G4double)HitCount/(G4double)PhotonCount << G4endl;
+    G4double detEff = (PhotonCount > 0 ? (G4double)HitCount/(G4double)PhotonCount: 0.0);
+    G4cout << "Efficiency in this run is " << detEff  << G4endl;
     if (outputfile.is_open())
     {
         outputfile << "#Mu_tile [cm^-1]\tMu_fiber [cm^-1]\tEfficiency" << G4endl;
-        outputfile << inducedMuTile << "\t" << inducedMuFiber << "\t"<< (G4double)HitCount/(G4double)PhotonCount << G4endl;
+        outputfile << inducedMuTile << "\t" << inducedMuFiber << "\t" << detEff << G4endl;
     }
     else
     {
         G4cout << "Output file not open" << G4endl;
         G4cout << "#Mu_tile [cm^-1]\tMu_fiber [cm^-1]\tEfficiency" << G4endl;
-        G4cout << inducedMuTile << "\t" << inducedMuFiber << "\t"<< (G4double)HitCount/(G4double)PhotonCount << G4endl;
+        G4cout << inducedMuTile << "\t" << inducedMuFiber << "\t" << detEff << G4endl;
     }
     outputfile.close();
 

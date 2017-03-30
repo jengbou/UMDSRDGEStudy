@@ -53,7 +53,7 @@ LYSimDetectorConstruction::LYSimDetectorConstruction()
     logicWorld = NULL;
     physWorld = NULL;
 
-    fVacuum = fAir = fSiO2 = fPolystyrene = fPolycarbonate = fLYSO = fGaAs = NULL;
+    fVacuum = fAir = fSiO2 = fPolystyrene = fPolycarbonate = fLYSO = fGaAs = fBialkali = NULL;
     fSCSN81 = fEJ200 = fEJ260 = NULL;
     fScintPmtGapMat = NULL;
     fFiberCore = fFiberInnerCladding = fFiberOuterCladding = NULL;
@@ -549,6 +549,12 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
                               0,
                               checkOverlaps);
 
+        G4LogicalBorderSurface* RodAirSurface = 
+            new G4LogicalBorderSurface("RodAirSurface",
+                                       physRod,
+                                       physWorld,
+                                       fPolishedOpSurface);
+
         //Rod visualization attributes
         G4VisAttributes * RodVisAtt = new G4VisAttributes(G4Colour(1.,1.,0.));
         RodVisAtt->SetForceWireframe(true);
@@ -563,14 +569,14 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
         G4Tubs* solidPhotocat =
             new G4Tubs("Photocathode",
                        0.,
-                       0.5*76.2*mm,
+                       0.5*65.*mm,
                        0.5*Photocat_thickness,
                        0.,
                        2.*pi);
 
         G4LogicalVolume* logicPhotocat =
             new G4LogicalVolume(solidPhotocat,
-                                fGaAs, //*-*
+                                fBialkali,
                                 "Photocathode");
 
         G4RotationMatrix* rotPhotocat = new G4RotationMatrix;
@@ -965,6 +971,7 @@ void LYSimDetectorConstruction::DefineMaterials()
     G4Element *H = nist->FindOrBuildElement("H");
     G4Element *Si = nist->FindOrBuildElement("Si");
     G4Element *O = nist->FindOrBuildElement("O");
+    G4Element *K = nist->FindOrBuildElement("K");
     G4Element *Sb = nist->FindOrBuildElement("Sb");
     G4Element *Rb = nist->FindOrBuildElement("Rb");
     G4Element *Cs = nist->FindOrBuildElement("Cs");
@@ -985,6 +992,15 @@ void LYSimDetectorConstruction::DefineMaterials()
     fGaAs = nist->FindOrBuildMaterial("G4_GALLIUM_ARSENIDE");
     fPyrex = nist->FindOrBuildMaterial("G4_Pyrex_Glass");
     fWater = nist->FindOrBuildMaterial("G4_WATER");
+
+    //Bialkali definition:
+    //Ref: http://hypernews.slac.stanford.edu/HyperNews/geant4/get/AUX/2013/03/11/12.39-85121-chDetectorConstruction.cc
+    {
+        fBialkali = new G4Material("Bialkali", 4.28*g/cm3, 3, kStateSolid);
+        fBialkali->AddElement(K,  13.3*perCent);
+        fBialkali->AddElement(Cs, 45.2*perCent);
+        fBialkali->AddElement(Sb, 41.5*perCent); 
+    }
 
     //Air definition
     {
@@ -1492,12 +1508,17 @@ void LYSimDetectorConstruction::DefineMaterials()
         MPTEJ200->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
         MPTEJ200->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
         MPTEJ200->AddConstProperty("SCINTILLATIONYIELD",10./keV); // ELJEN
-        MPTEJ200->AddConstProperty("ALPHASCINTILLATIONYIELD",11./keV); // alpha particle
+        //MPTEJ200->AddConstProperty("ELECTRONSCINTILLATIONYIELD",10./keV); // default: electron
+        //MPTEJ200->AddConstProperty("ALPHASCINTILLATIONYIELD",11./keV); // alpha particle
         MPTEJ200->AddConstProperty("RESOLUTIONSCALE",1.0);
         MPTEJ200->AddConstProperty("FASTTIMECONSTANT",0.9*ns); // ELJEN
         MPTEJ200->AddConstProperty("SLOWTIMECONSTANT",2.1*ns);
         MPTEJ200->AddConstProperty("YIELDRATIO",1.0);
         fEJ200->SetMaterialPropertiesTable(MPTEJ200);
+
+        // FIXME: Set the Birks Constant for the EJ200 scintillator
+        fEJ200->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
+
     }
 
     //EJ260
@@ -1524,12 +1545,17 @@ void LYSimDetectorConstruction::DefineMaterials()
         MPTEJ260->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
         MPTEJ260->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
         MPTEJ260->AddConstProperty("SCINTILLATIONYIELD",9.2/keV); // ELJEN
-        MPTEJ260->AddConstProperty("ALPHASCINTILLATIONYIELD",10.12/keV); // alpha particle
+        //MPTEJ260->AddConstProperty("ELECTRONSCINTILLATIONYIELD",9.2/keV); // default: electron
+        //MPTEJ260->AddConstProperty("ALPHASCINTILLATIONYIELD",10.12/keV); // alpha particle
         MPTEJ260->AddConstProperty("RESOLUTIONSCALE",1.0);
         MPTEJ260->AddConstProperty("FASTTIMECONSTANT",1.3*ns); // ELJEN
         MPTEJ260->AddConstProperty("SLOWTIMECONSTANT",9.2*ns);
         MPTEJ260->AddConstProperty("YIELDRATIO",1.0);
         fEJ260->SetMaterialPropertiesTable(MPTEJ260);
+
+        // FIXME: Set the Birks Constant for the EJ260 scintillator
+        fEJ260->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
+
     }
 
 }

@@ -44,53 +44,56 @@
 #include "G4ParticleDefinition.hh"
 
 LYSimPMTSD::LYSimPMTSD(G4String name)
-: G4VSensitiveDetector(name),fPMTHitsCollection(0)
+    : G4VSensitiveDetector(name),fPMTHitsCollection(0)
 {
-	collectionName.insert("PMTHitsCollection");
+    collectionName.insert("PMTHitsCollection");
 }
 
 LYSimPMTSD::~LYSimPMTSD() { }
 
-void LYSimPMTSD::Initialize(G4HCofThisEvent* HCE)
+void LYSimPMTSD::Initialize(G4HCofThisEvent*)
 {
-	fPMTHitsCollection =
-	new LYSimPMTHitsCollection(GetName(),collectionName[0]);
-	//Store collection with event and keep ID
-	static G4int HCID = -1;
-	if (HCID<0) HCID = GetCollectionID(0);
-	HCE->AddHitsCollection( HCID, fPMTHitsCollection );
+    fPMTHitsCollection = new LYSimPMTHitsCollection(GetName(),collectionName[0]);
 }
 
 G4bool LYSimPMTSD::ProcessHits(G4Step* aStep, G4TouchableHistory* )
 {
-	return false; //ProcessHits should not be called
+    return false; //ProcessHits should not be called
 }
 
 G4bool LYSimPMTSD::ProcessHits_constStep(const G4Step* aStep, G4TouchableHistory* ROhist)
 {
-	G4Track* theTrack = aStep->GetTrack();
-	
-	//need to know if this is an optical photon
-	if(theTrack->GetDefinition()
-		!= G4OpticalPhoton::OpticalPhotonDefinition()) return false;
+    G4Track* theTrack = aStep->GetTrack();
 
-	//Find the correct hit collection
-	G4int n=fPMTHitsCollection->entries();
-	LYSimPMTHit* hit=NULL;
-	if (n!=0) {hit=(*fPMTHitsCollection)[0];}
-	if(hit==NULL){//this pmt wasnt previously hit in this event
-		hit = new LYSimPMTHit(); //so create new hit
-		fPMTHitsCollection->insert(hit);
-	}
+    //need to know if this is an optical photon
+    if(theTrack->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) return false;
 
-	hit->AddEnergy(theTrack->GetTotalEnergy());
-	hit->IncPhotonCount(); //increment hit for the selected pmt
-	
-	return true;
+    LYSimPMTHit* hit=new LYSimPMTHit();
+
+    hit->AddEnergy(theTrack->GetTotalEnergy());
+    hit->IncPhotonCount(); //increment hit for the selected pmt
+    hit->SetTime(aStep->GetPostStepPoint()->GetGlobalTime());
+
+    fPMTHitsCollection->insert(hit);
+
+    return true;
 
 }
 
-void LYSimPMTSD::EndOfEvent(G4HCofThisEvent* ){ }
+void LYSimPMTSD::EndOfEvent(G4HCofThisEvent* HCE){
+    //Store collection with event and keep ID
+    static G4int HCID = -1;
+    if (HCID<0) HCID = GetCollectionID(0);
+    HCE->AddHitsCollection( HCID, fPMTHitsCollection );
+
+    G4int nHits = fPMTHitsCollection->entries();
+    if (verboseLevel>=1) {
+        G4cout << "[LYSim] PMT collection: " << nHits << " hits" << G4endl;
+        if (verboseLevel>=2)
+            fPMTHitsCollection->PrintAllHits();
+    }
+    fPMTHitsCollection->PrintAllHits();
+}
 
 void LYSimPMTSD::clear(){ }
 

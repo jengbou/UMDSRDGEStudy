@@ -79,9 +79,13 @@ public:
     G4double GetEnergy(){ return fEnergy; }
     G4int GetPhotonCount(){ return fPhotonCount;}
 
+    void SetTime(G4double t) {fTime=t;};
+    G4double GetTime() {return fTime;};
+
 private:
     G4double fEnergy; //Total photon energy deposited in PMT
     G4int fPhotonCount; //Total number of photons detected by PMT
+    G4double fTime;
 
 };
 

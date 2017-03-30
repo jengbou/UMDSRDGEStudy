@@ -3,6 +3,8 @@
 
 #include <G4Scintillation.hh>
 
+#define G4DEBUG_SCINTILLATION 1
+
 class LYSimScintillation : public G4Scintillation
 {
 public:

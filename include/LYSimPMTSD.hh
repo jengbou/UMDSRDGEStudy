@@ -34,7 +34,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 #ifndef LYSimPMTSD_h
-#define LYSimPMTSD_h 1
+#define LYSimPMTSD_h
 
 #include "LYSimPMTHit.hh"
 
