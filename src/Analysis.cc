@@ -67,19 +67,22 @@ void Analysis::EndOfEvent(const G4Event* anEvent)
 
     G4double nHits = hits->entries();
     G4double firstHitTime = 0;
+    PhotonCount++;
     for (G4int i=0; i<nHits; i++)
     {
         G4double HitEnergy = (*hits)[i]->GetEnergy();
         G4double HitTime = (*hits)[i]->GetTime();
-        if (i==0) firstHitTime = HitTime;
+        if (i==0) {
+            firstHitTime = HitTime;
+            HitCount++;
+        }
 
-        if (HitTime - firstHitTime > 200.0)
+        // Test for EJ200
+        if (HitTime - firstHitTime > 2.1)
             G4cout << "[LYSim] Late signal: delta Time [ns] = " << HitTime - firstHitTime << G4endl;
 
         EventEnergy += HitEnergy;
-        EventPhotonCount = (*hits)[i]->GetPhotonCount();
-        PhotonCount += EventPhotonCount;
-        HitCount++;
+        EventPhotonCount += (*hits)[i]->GetPhotonCount();
         man->FillH1(1,HitEnergy/eV);
 
         if (anEvent->GetEventID()%100 == 0 && nHits > 0) {
@@ -92,12 +95,12 @@ void Analysis::EndOfEvent(const G4Event* anEvent)
                    << G4endl << std::resetiosflags(std::ios::fixed);;
         }
     }
-    man->FillH1(2,HitCount);
-    man->FillH1(3,EventEnergy/eV);
+    man->FillH1(2,EventPhotonCount);//Photon hits per event
+    man->FillH1(3,EventEnergy/eV);//total energy deposited at PMT per event
 }
 
 
-void Analysis::PrepareNewRun(const G4Run* /*aRun*/ )
+void Analysis::PrepareNewRun(const G4Run*)
 {
     //Reset variables relative to the run
     PhotonCount = 0;
@@ -105,7 +108,7 @@ void Analysis::PrepareNewRun(const G4Run* /*aRun*/ )
 }
 
 
-void Analysis::EndOfRun(const G4Run* aRun)
+void Analysis::EndOfRun(const G4Run*)
 {
     outputfile.open(fOutputFileName.c_str(), ofstream::out | ofstream::app);
     G4double detEff = (PhotonCount > 0 ? (G4double)HitCount/(G4double)PhotonCount: 0.0);

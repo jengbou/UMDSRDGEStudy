@@ -43,6 +43,7 @@ public:
     //these methods Construct physics processes and register them
     void ConstructGeneral();
     void ConstructEM();
+    void ConstructHad();
     void ConstructOp();
     void ConstructIdealOp();
 
@@ -50,9 +51,10 @@ public:
     void SetVerbose(G4int);
     void SetNbOfPhotonsCerenkov(G4int);
 
+    void SetHadProc(G4bool boolHad) {hadProcess = boolHad;}
+
 private:
     G4Cerenkov*          theCerenkovProcess;
-    G4ComptonScattering* theComptonScatteringProcess;
     LYSimScintillation*  theScintillationProcess;
     G4OpAbsorption*      theAbsorptionProcess;
     G4OpRayleigh*        theRayleighScatteringProcess;
@@ -65,8 +67,10 @@ private:
     G4VPhysicsConstructor*  emPhysicsList;
     G4double cutForGamma;
     G4double cutForElectron;
-    G4double cutForPositron;    
-    G4double cutForProton;    
+    G4double cutForPositron;
+    G4double cutForProton;
+
+    G4bool hadProcess;
 
     LYSimPhysicsListMessenger* pMessenger;
 };

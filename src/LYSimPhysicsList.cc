@@ -138,7 +138,7 @@ void LYSimPhysicsList::ConstructProcess()
     AddTransportation();
     ConstructGeneral();
     ConstructEM();
-    ConstructHad();
+    if (hadProcess) ConstructHad();
     ConstructOp();
 }
 

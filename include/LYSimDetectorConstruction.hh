@@ -101,6 +101,7 @@ public:
     void SetTileType(G4int);
     //Detector type type 0(Tile), 1 (Rod)
     void SetDetectorType(G4int);
+    G4int GetDetectorType() {return detType;}
 
 private:
     //Subfunctions for cleaner code

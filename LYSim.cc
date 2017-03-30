@@ -39,11 +39,15 @@ int main(int argc,char** argv)
     //
     // Detector construction
     LYSimDetectorConstruction* detector= new LYSimDetectorConstruction();
-    detector->SetDetectorType(1);
+    if (argc > 1) detector->SetDetectorType(std::atoi(argv[1]));
+    else detector->SetDetectorType(0);
+
     runManager->SetUserInitialization(detector);
     G4cout << "[LYSim] 22222" << G4endl;
     // Physics list
-    runManager-> SetUserInitialization(new LYSimPhysicsList());
+    LYSimPhysicsList *physlist = new LYSimPhysicsList();
+    if (detector->GetDetectorType()==1) physlist->SetHadProc(true);
+    runManager-> SetUserInitialization(physlist);
     G4cout << "[LYSim] 33333" << G4endl;
 
     //Construct Analysis class
@@ -81,9 +85,9 @@ int main(int argc,char** argv)
     // Get the pointer to the User Interface manager
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-    if (argc == 2) {
-        G4cout << "[LYSim] argv[1] is " << argv[1] <<G4endl;
-        if(std::string(argv[1]) == "-novis") {
+    if (argc == 3) {
+        G4cout << "[LYSim] argv[2] is " << argv[2] <<G4endl;
+        if(std::string(argv[2]) == "-novis") {
             G4UIExecutive* ui = new G4UIExecutive(argc, argv);
             ui->SessionStart();
             UImanager->ApplyCommand("/control/execute init.mac");
@@ -93,15 +97,15 @@ int main(int argc,char** argv)
             G4cout << "[LYSim] run in batch mode" <<G4endl;
             // batch mode
             G4String command = "/control/execute ";
-            G4String fileName = argv[1];
+            G4String fileName = argv[2];
             UImanager->ApplyCommand(command+fileName);
         }
     }
-    else if (argc == 3) {
+    else if (argc == 4) {
         // batch mode
         G4String command = "/control/execute ";
-        G4String fileName = argv[1];
-        outFileName = argv[2];
+        G4String fileName = argv[2];
+        outFileName = argv[3];
         G4cout << "[LYSim] outFileName tag is " << outFileName <<G4endl;
         Analysis::GetInstance()->SetOutputFile(outFileName+".txt");
         Analysis::GetInstance()->SetROOTFile(outFileName+".root");
