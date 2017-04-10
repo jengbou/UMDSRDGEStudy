@@ -259,6 +259,8 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
         TileVisAtt->SetVisibility(true);
         logicTile->SetVisAttributes(TileVisAtt);
 
+        G4Region* detRegion = new G4Region("Scintillator");
+        detRegion->AddRootLogicalVolume(logicTile);
 
         ////////////////////////////////////////////
         // Fiber groove and fiber
@@ -561,6 +563,8 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
         RodVisAtt->SetVisibility(true);
         logicRod->SetVisAttributes(RodVisAtt);
 
+        G4Region* detRegion = new G4Region("Scintillator");
+        detRegion->AddRootLogicalVolume(logicRod);
 
         ////////////////////////////////////////////
         // PMT : FIXME --> change to use HPK R6091
@@ -1482,6 +1486,8 @@ void LYSimDetectorConstruction::DefineMaterials()
         MPT->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
         MPT->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
         fSCSN81->SetMaterialPropertiesTable(MPT);
+
+        G4cout << fSCSN81 << G4endl;
     }
 
     //EJ200
@@ -1507,18 +1513,19 @@ void LYSimDetectorConstruction::DefineMaterials()
         G4MaterialPropertiesTable* MPTEJ200 = new G4MaterialPropertiesTable();
         MPTEJ200->AddProperty("RINDEX",PhotonEnergy,RefractiveIndex,nEntries);
         MPTEJ200->AddProperty("ABSLENGTH",PhotonEnergy,AbsLength,nEntries);
-        MPTEJ200->AddConstProperty("SCINTILLATIONYIELD",10./keV); // ELJEN
-        //MPTEJ200->AddConstProperty("ELECTRONSCINTILLATIONYIELD",10./keV); // default: electron
-        //MPTEJ200->AddConstProperty("ALPHASCINTILLATIONYIELD",11./keV); // alpha particle
+        MPTEJ200->AddConstProperty("SCINTILLATIONYIELD",10./keV);
+        MPTEJ200->AddConstProperty("ELECTRONSCINTILLATIONYIELD",10./keV); // default: electron ELJEN
+        MPTEJ200->AddConstProperty("ALPHASCINTILLATIONYIELD",100./MeV); // alpha particle
         MPTEJ200->AddConstProperty("RESOLUTIONSCALE",1.0);
-        MPTEJ200->AddConstProperty("FASTTIMECONSTANT",0.9*ns); // ELJEN
-        MPTEJ200->AddConstProperty("SLOWTIMECONSTANT",2.1*ns);
-        MPTEJ200->AddConstProperty("YIELDRATIO",1.0);
+        MPTEJ200->AddConstProperty("FASTSCINTILLATIONRISETIME",0.9*ns); // Rise time
+        MPTEJ200->AddConstProperty("FASTTIMECONSTANT",2.1*ns); // Decay time
+        //MPTEJ200->AddProperty("FASTCOMPONENT",PhotonEnergy,Scints,nEntries);
+        //MPTEJ200->AddConstProperty("YIELDRATIO",1.0);//Fast component/Tot scint
         fEJ200->SetMaterialPropertiesTable(MPTEJ200);
 
         // FIXME: Set the Birks Constant for the EJ200 scintillator
         fEJ200->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
-
+        G4cout << fEJ200 << G4endl;
     }
 
     //EJ260
@@ -1548,14 +1555,14 @@ void LYSimDetectorConstruction::DefineMaterials()
         //MPTEJ260->AddConstProperty("ELECTRONSCINTILLATIONYIELD",9.2/keV); // default: electron
         //MPTEJ260->AddConstProperty("ALPHASCINTILLATIONYIELD",10.12/keV); // alpha particle
         MPTEJ260->AddConstProperty("RESOLUTIONSCALE",1.0);
-        MPTEJ260->AddConstProperty("FASTTIMECONSTANT",1.3*ns); // ELJEN
-        MPTEJ260->AddConstProperty("SLOWTIMECONSTANT",9.2*ns);
-        MPTEJ260->AddConstProperty("YIELDRATIO",1.0);
+        MPTEJ260->AddConstProperty("FASTSCINTILLATIONRISETIME",1.3*ns); // Rise time
+        MPTEJ260->AddConstProperty("FASTIMECONSTANT",9.2*ns);// Decay time
+        //MPTEJ260->AddConstProperty("YIELDRATIO",1.0);
         fEJ260->SetMaterialPropertiesTable(MPTEJ260);
 
         // FIXME: Set the Birks Constant for the EJ260 scintillator
         fEJ260->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
-
+        G4cout << fEJ260 << G4endl;
     }
 
 }
