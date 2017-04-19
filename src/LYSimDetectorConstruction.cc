@@ -259,8 +259,8 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
         TileVisAtt->SetVisibility(true);
         logicTile->SetVisAttributes(TileVisAtt);
 
-        G4Region* detRegion = new G4Region("Scintillator");
-        detRegion->AddRootLogicalVolume(logicTile);
+//         G4Region* detRegion = new G4Region("Scintillator");
+//         detRegion->AddRootLogicalVolume(logicTile);
 
         ////////////////////////////////////////////
         // Fiber groove and fiber
@@ -563,8 +563,8 @@ G4VPhysicalVolume* LYSimDetectorConstruction::ConstructDetector()
         RodVisAtt->SetVisibility(true);
         logicRod->SetVisAttributes(RodVisAtt);
 
-        G4Region* detRegion = new G4Region("Scintillator");
-        detRegion->AddRootLogicalVolume(logicRod);
+//         G4Region* detRegion = new G4Region("Scintillator");
+//         detRegion->AddRootLogicalVolume(logicRod);
 
         ////////////////////////////////////////////
         // PMT : FIXME --> change to use HPK R6091
@@ -1798,11 +1798,11 @@ void LYSimDetectorConstruction::UpdateGeometry()
     DefineMaterials();
     DefineSurfaces();
     G4RunManager::GetRunManager()->DefineWorldVolume(ConstructDetector());
-
+    G4cout << "[LYSim] Setting induced absorption coefficient = " << inducedMuTile << " [cm^-1]" << G4endl;
     G4RunManager::GetRunManager()->GeometryHasBeenModified();
     //G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 
-    //  G4RegionStore::GetInstance()->UpdateMaterialList(physWorld);
+    //G4RegionStore::GetInstance()->UpdateMaterialList(physWorld);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

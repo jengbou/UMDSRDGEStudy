@@ -135,17 +135,21 @@ LYSimDetectorMessenger::LYSimDetectorMessenger(LYSimDetectorConstruction * Det)
     SetTileAbsLengthCmd->SetRange("TileAbsLength>=0.");
     SetTileAbsLengthCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
-    SetInducedMuTileCmd = new G4UIcmdWithADouble("/LYSim/SetInducedMuTile", this);
-    SetInducedMuTileCmd->SetGuidance("Set the induced absorption coefficient (cm^-1)");
-    SetInducedMuTileCmd->SetParameterName("InducedMuTile",false);
-    SetInducedMuTileCmd->SetRange("InducedMuTile>=0.");
-    SetInducedMuTileCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+    SetInducedAbsLengthCmd = new G4UIcmdWithADoubleAndUnit("/LYSim/SetInducedAbsLength", this);
+    SetInducedAbsLengthCmd->SetGuidance("Set the induced absorption length (cm)");
+    SetInducedAbsLengthCmd->SetParameterName("InducedMuTile",false);
+    SetInducedAbsLengthCmd->SetUnitCategory("Length");
+    SetInducedAbsLengthCmd->SetDefaultUnit("cm");
+    SetInducedAbsLengthCmd->SetRange("InducedMuTile>=0.");
+    SetInducedAbsLengthCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
-    SetInducedMuFiberCmd = new G4UIcmdWithADouble("/LYSim/SetInducedMuFiber", this);
-    SetInducedMuFiberCmd->SetGuidance("Set the induced absorption coefficient (cm^-1)");
-    SetInducedMuFiberCmd->SetParameterName("InducedMuFiber",false);
-    SetInducedMuFiberCmd->SetRange("InducedMuFiber>=0.");
-    SetInducedMuFiberCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+    SetInducedAbsLengthFiberCmd = new G4UIcmdWithADoubleAndUnit("/LYSim/SetInducedAbsLengthFiber", this);
+    SetInducedAbsLengthFiberCmd->SetGuidance("Set the induced absorption length for fiber (cm)");
+    SetInducedAbsLengthFiberCmd->SetParameterName("InducedMuFiber",false);
+    SetInducedAbsLengthFiberCmd->SetUnitCategory("Length");
+    SetInducedAbsLengthFiberCmd->SetDefaultUnit("cm");
+    SetInducedAbsLengthFiberCmd->SetRange("InducedMuFiber>=0.");
+    SetInducedAbsLengthFiberCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 }
 
 LYSimDetectorMessenger::~LYSimDetectorMessenger()
@@ -170,8 +174,8 @@ LYSimDetectorMessenger::~LYSimDetectorMessenger()
     delete SetLayerNoCmd;
     delete SetTileTypeCmd;
     delete SetTileAbsLengthCmd;
-    delete SetInducedMuTileCmd;
-    delete SetInducedMuFiberCmd;
+    delete SetInducedAbsLengthCmd;
+    delete SetInducedAbsLengthFiberCmd;
 }
 
 void LYSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String val)
@@ -245,18 +249,18 @@ void LYSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String val)
         Detector->
             SetTileAbsLength(G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(val));
     }
-    else if( command == SetInducedMuTileCmd ) {
+    else if( command == SetInducedAbsLengthCmd ) {
         G4double value = G4UIcmdWithADouble::GetNewDoubleValue(val);
         Detector->
-            SetInducedMuTile(value);
+            SetInducedMuTile(1/value);
         analysis->
-            SetInducedMuTile(value);
+            SetInducedMuTile(1/value);
     }
-    else if( command == SetInducedMuFiberCmd ) {
+    else if( command == SetInducedAbsLengthFiberCmd ) {
         G4double value = G4UIcmdWithADouble::GetNewDoubleValue(val);
         Detector->
-            SetInducedMuFiber(value);
+            SetInducedMuFiber(1/value);
         analysis->
-            SetInducedMuFiber(value);
+            SetInducedMuFiber(1/value);
     }
 }

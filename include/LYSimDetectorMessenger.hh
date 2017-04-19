@@ -51,8 +51,8 @@ private:
     G4UIcmdWithAnInteger*       SetLayerNoCmd;
     G4UIcmdWithAnInteger*       SetTileTypeCmd;
     G4UIcmdWithADoubleAndUnit*  SetTileAbsLengthCmd;
-    G4UIcmdWithADouble*         SetInducedMuTileCmd;
-    G4UIcmdWithADouble*         SetInducedMuFiberCmd;
+    G4UIcmdWithADoubleAndUnit*  SetInducedAbsLengthCmd;
+    G4UIcmdWithADoubleAndUnit*  SetInducedAbsLengthFiberCmd;
 
 };
 
