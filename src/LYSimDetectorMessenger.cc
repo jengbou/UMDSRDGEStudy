@@ -250,14 +250,14 @@ void LYSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String val)
             SetTileAbsLength(G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(val));
     }
     else if( command == SetInducedAbsLengthCmd ) {
-        G4double value = G4UIcmdWithADouble::GetNewDoubleValue(val);
+        G4double value = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(val);
         Detector->
             SetInducedMuTile(1/value);
         analysis->
             SetInducedMuTile(1/value);
     }
     else if( command == SetInducedAbsLengthFiberCmd ) {
-        G4double value = G4UIcmdWithADouble::GetNewDoubleValue(val);
+        G4double value = G4UIcmdWithADoubleAndUnit::GetNewDoubleValue(val);
         Detector->
             SetInducedMuFiber(1/value);
         analysis->
