@@ -863,7 +863,7 @@ void LYSimPhysicsList::SetVerbose(G4int verbose)
     theRayleighScatteringProcess->SetVerboseLevel(verbose);
     theMieHGScatteringProcess->SetVerboseLevel(verbose);
     theBoundaryProcess->SetVerboseLevel(verbose);
-    theWLSProcess->SetVerboseLevel(2);
+    theWLSProcess->SetVerboseLevel(verbose);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

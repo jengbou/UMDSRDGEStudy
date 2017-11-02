@@ -1,45 +1,67 @@
 ================================================================================
 The following instructions are for the lxplus cluster at CERN.
-IMPORTANT: Use lxplus5.cern.ch to access SL5 nodes.
 
 
 Checkout instructions
 ----------------------
 1. Create working area
-mkdir scratcharea
-cd scratcharea
+mkdir -p workarea/geant4work
+cd workarea/geant4work
 
 2. Checkout source code and copy to working area
-cvs co UserCode/YShin/LYSim-LO2
-cp -r UserCode/YShin/LYSim-LO2 LYSim-LO2
+git clone https://github.com/jengbou/UMDSRDGEStudy.git
 
 
 Build and run instructions
 -----------------------------
 1. Create build directory
-mkdir LYSim-LO2-build
+
+mkdir UMDSRDGEStudy-build
 
 2a. Check out CMSSW (Only required the first time), e.g.
-cmsrel CMSSW_4_4_4
+cmsrel CMSSW_7_6_3
 
 2b. cd to SCRAM based area and set up runtime environment, e.g.
-cd CMSSW_4_4_4/src
+cd CMSSW_7_6_3/src
 cmsenv
 
-3. Compile the source code
-cd ~/scratcharea/LYSim-LO2-build
+3. Compile the source code (only needed for one time)
+cd ~/workarea/geant4work/UMDSRDGEStudy-build
 export G4BASE=/afs/cern.ch/sw/lcg/external/geant4
-source $G4BASE/9.6/x86_64-slc5-gcc43-opt/CMake-setup.sh
-cmake -DWITH_GEANT4_UIVIS=ON -DGeant4_DIR=/afs/cern.ch/sw/lcg/external/geant4/9.6/x86_64-slc5-gcc43-opt/lib64/Geant4-9.6.0/ $HOME/scratcharea/UserCode/YShin/LYSim-LO2
+source $G4BASE/10.3/x86_64-slc6-gcc49-opt/CMake-setup.sh
+cmake -DWITH_GEANT4_UIVIS=ON -DGeant4_DIR=$G4BASE/10.3/x86_64-slc6-gcc49-opt/lib64/Geant4-10.3.0/ $HOME/workarea/geant4work/UMDSRDGEStudy
 make
 
-4a. The following commands executes the input macro files, and pipes the output to the corresponding output files
-./LYSim LO2.in >& LO2.out &
+3a. Once the code is compiled, you can make a script for automatically setting up GEANT4 environment next time when you login lxplus as follows:
+    3a.1: create a G4_setup.sh file:
 
-4b. (optional) You can also manually execute visualization commands using the interactive mode, e.g.
-./LYSim
-Idle> /vis/viewer/set/viewpointThetaPhi 90 0
-Idle> exit
+======= G4_setup.sh =======
+#!/bin/sh
+G4BASE=/afs/cern.ch/sw/lcg/external/geant4/10.3/x86_64-slc6-gcc49-opt/bin
+G4WORK=~/workarea/geant4work/UMDSRDGEStudy-build
+cd ${G4BASE}
+source geant4.sh
+cd ${G4WORK}
+===========================
+
+    3a.2: add the following line to your ~/.bashrc file:
+source ~/G4_setup.sh
+
+
+================================================================================
+Some examples:
+4a. The following command run the code interactively for two different types of geometries.
+    4a.1: for tile (Trapezoid):
+    ./LYSim 0
+
+    4a.2: for rod (5x1x1 cm^3):
+    ./LYSim 1
+
+4b. The following commands executes the input macro files (photontest.mac), and pipes the output to the corresponding output files (<log filename>.log)
+./LYSim 1 photontest.mac <output filename> >& <log filename>.log &
+
+Note: two files will be created: <output filename>.root and <output filename>.txt
+
 
 
 See LYSimDetectorConstruction.cc for details on simulation setup, detector geometry and material properties
